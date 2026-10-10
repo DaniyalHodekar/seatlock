@@ -1,0 +1,11 @@
+{
+  "name": "seatlock",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Seat booking Application",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.17.0"
+}
