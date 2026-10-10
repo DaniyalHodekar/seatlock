@@ -3,7 +3,10 @@
   "private": true,
   "version": "1.0.0",
   "description": "Seat booking Application",
-  "scripts": {},
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
