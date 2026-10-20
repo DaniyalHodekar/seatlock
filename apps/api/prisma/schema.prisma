@@ -1,13 +1,103 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+datasource db {
+  provider = "postgresql"
+}
 
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
-datasource db {
-  provider = "postgresql"
+enum Role {
+  organiser
+  buyer
+
+  @@map("role")
+}
+
+enum OrderStatus {
+  pending
+  paid
+  cancelled
+
+  @@map("order_status")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  events       Event[]
+  holds        Hold[]
+  orders       Order[]
+
+  @@map("users")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  venue       String
+  startsAt    DateTime @map("starts_at") @db.Timestamptz
+  // Restrict: deleting an organiser must never take down events buyers have paid for.
+  organiser   User     @relation(fields: [organiserId], references: [id], onDelete: Restrict)
+  organiserId Int      @map("organiser_id")
+  seats       Seat[]
+
+  @@map("events")
+}
+
+model Seat {
+  id         Int     @id @default(autoincrement())
+  row        String
+  number     Int
+  pricePaise Int     @map("price_paise")
+  // Cascade: seats have no meaning without their event. Safe because Ticket -> Seat is Restrict,
+  // so deleting an event that has sold tickets still fails.
+  event      Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    Int     @map("event_id")
+  holds      Hold[]
+  ticket     Ticket?
+
+  @@unique([eventId, row, number])
+  @@map("seats")
+}
+
+model Hold {
+  id        Int      @id @default(autoincrement())
+  // Cascade (both): holds are temporary claims, worthless once the seat or user is gone.
+  seat      Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  seatId    Int      @map("seat_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+
+  @@map("holds")
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  // Restrict: orders are financial records and must be kept. Account deletion will anonymise
+  // the user row instead of deleting it.
+  user       User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId     Int         @map("user_id")
+  status     OrderStatus
+  totalPaise Int         @map("total_paise")
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  tickets    Ticket[]
+
+  @@map("orders")
+}
+
+model Ticket {
+  id      Int    @id @default(autoincrement())
+  // Restrict (both): a sold ticket must always point at the payment and the seat it is for.
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  orderId Int    @map("order_id")
+  seat    Seat   @relation(fields: [seatId], references: [id], onDelete: Restrict)
+  seatId  Int    @unique @map("seat_id")
+  code    String @unique
+
+  @@map("tickets")
 }
