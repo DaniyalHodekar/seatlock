@@ -5,7 +5,13 @@ import { ConfigModule } from '@nestjs/config';
 import { EventsModule } from './events/events.module.js';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), EventsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
+    }),
+    EventsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
