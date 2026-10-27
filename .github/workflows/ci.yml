@@ -50,8 +50,12 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
       - name: E2E tests
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://seatlock_user:seatlock_123@localhost:5432/seatlock_test
         run: pnpm --filter api test:e2e
+
+      - name: Test Coverage
+        run: pnpm --filter api test:cov
