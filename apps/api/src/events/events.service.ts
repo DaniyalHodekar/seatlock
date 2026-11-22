@@ -4,9 +4,7 @@ import { EventDto } from '@seatlock/shared';
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prismaService: PrismaService) {
-    this.prismaService = prismaService;
-  }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async findUpcoming(): Promise<EventDto[]> {
     const events = await this.prismaService.event.findMany({

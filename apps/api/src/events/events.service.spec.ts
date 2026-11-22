@@ -21,15 +21,18 @@ describe('EventsService', () => {
     service = module.get<EventsService>(EventsService);
   });
 
-  it('returns the upcoming events Prisma gives back', async () => {
+  it('returns the upcoming events Prisma gives back, with startsAt serialised to ISO', async () => {
+    const startsAt = new Date();
     const fakeEvents = [
-      { id: 1, title: 'EventName', venue: 'HallName', startsAt: new Date() },
+      { id: 1, title: 'EventName', venue: 'HallName', startsAt },
     ];
     findMany.mockResolvedValue(fakeEvents);
 
     const result = await service.findUpcoming();
 
-    expect(result).toBe(fakeEvents);
+    expect(result).toEqual([
+      { id: 1, title: 'EventName', venue: 'HallName', startsAt: startsAt.toISOString() },
+    ]);
   });
 
   it('queries only future events, ordered by startsAt', async () => {
