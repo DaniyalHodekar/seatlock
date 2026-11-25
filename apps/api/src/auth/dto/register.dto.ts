@@ -9,3 +9,13 @@ export class RegisterDto {
   @MaxLength(128)
   password: string;
 }
+
+export class LoginDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  password: string;
+}
