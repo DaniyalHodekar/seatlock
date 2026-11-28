@@ -22,6 +22,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Check out the code
@@ -58,6 +67,8 @@ jobs:
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://seatlock_user:seatlock_123@localhost:5432/seatlock_test
+          REDIS_URL: redis://localhost:6379
+          SESSION_SECRET: ci-test-secret
         run: pnpm --filter api test:e2e
 
       - name: Test Coverage
