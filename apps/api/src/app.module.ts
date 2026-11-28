@@ -4,6 +4,7 @@ import { AppService } from './app.service.js';
 import { ConfigModule } from '@nestjs/config';
 import { EventsModule } from './events/events.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { HoldsModule } from './holds/holds.module.js';
 
 @Module({
   imports: [
@@ -11,8 +12,9 @@ import { AuthModule } from './auth/auth.module.js';
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
     }),
-    EventsModule,
     AuthModule,
+    EventsModule,
+    HoldsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
